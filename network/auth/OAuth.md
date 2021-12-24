@@ -22,3 +22,11 @@ OAuth2是一个授权框架，或者说是一个标准，[规范RFC6749](https:/
 
 
 ### 五、PKCE（Proof Key of Code Exchange)
+
+
+
+### 六、reference
+
+- https://developer.okta.com/blog/2018/04/10/oauth-authorization-code-grant-type
+- https://oauth.net/2/grant-types/
+- https://www.oauth.com/oauth2-servers/background/
