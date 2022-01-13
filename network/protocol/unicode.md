@@ -19,7 +19,7 @@ Unicode的更多的详细内容可以参考 [1](#ref1)、[2](#ref2)
 utf-32就是用4个byte来表示一个Code Point（或者说一个字符）。code unit（编码单元）是4个byte。前文中已经说了，Unicode的范围是0-0x10FFFFF，最多也就是3个byte就足够了，那么utf-32的最高位的byte就一定是0x00. 
 
 ### uft-16
-utf-16的code unit（编码单元）是2个byte.但是Unicode中有的代码点的长度超过了16，那么就需要两个code unit. 也就是说用utf-16编码可能需要2个或1个code unit。但是
+utf-16的code unit（编码单元）是2个byte.但是Unicode中有的代码点的长度超过了16，那么就需要两个code unit. 也就是说用utf-16编码可能需要2个或1个code unit。但是这就会导致一个问题，例如给 0x0f 0x04 0x0a 0x02 这样一个序列，我们无法判断这到底是两个字符还是1个字符。为了解决这个问题，unicode专门保留了两个block，用于判断这种情况。
 
 ### uft-8
 
