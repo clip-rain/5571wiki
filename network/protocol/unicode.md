@@ -9,7 +9,7 @@ Unicode中几个关键概念。
 - Plane：中文理解就是平面，总共有17个，编号0-16。其实就是将Code Space分为17个组。其中0号是基础平面（BMP），基本包含了平时我们会用到的所有字符。所有BMP中的Code Points都可以用一个utf-16编码单元表示。
 - Block：每一个Plane会根据字符间的相关性细分为好几个Block。
 - Script：可以理解为书写系统，或者语言。例如中文书写系统，中文。截止2021年，uicode已经包含了159个script。
-- BOM：Byte Order Mark, 规定了byte之间的顺序[<sup>5</sup>](#bom)。
+- BOM：Byte Order Mark, 规定了byte之间的顺序[<sup>5</sup>](#ref5)。
 
 ![lei unicode](../../static/lei_unicode.png)
 
@@ -22,6 +22,7 @@ utf-32就是用4个byte来表示一个Code Point（或者说一个字符）。co
 utf-16的code unit（编码单元）是2个byte.但是Unicode中有的代码点的长度超过了16，那么就需要两个code unit. 也就是说用utf-16编码可能需要2个或1个code unit。但是这就会导致一个问题，例如给 0x0f 0x04 0x0a 0x02 这样一个序列，我们无法判断这到底是两个字符还是1个字符。为了解决这个问题，unicode专门保留了两个block，用于判断这种情况。
 
 ### uft-8
+
 
 ## <span style="color:red">reference</span>
 <div id='ref1'></div>
