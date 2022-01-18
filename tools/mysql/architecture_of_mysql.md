@@ -13,13 +13,11 @@ MySQL是由瑞典公司MySQL AB用c和c++开发和支持的。主要由Michael�
 Mysql中的组件非常多，大概分为2大类。第一类是Application Layer，可以理解比较通用的组件都在这一层。第二层是服务层，这一层包含Mysql的逻辑相关的功能组件。
 一、Application Layer
 1、Connection Handling
-当客户端和mysql服务端建立连接的时候，服务端会专门为其建立一个线程来处理连接。连接涉及到的对象有receiver thread, user, THD.
-<div style="backgroud-color:white">
+当客户端和mysql服务端建立连接的时候，服务端会专门为其建立一个线程来处理连接。连接涉及到的对象有receiver thread, user thread, thread cache, THD. 请求进入Mysql server之后会在请求队列中排队。receiver thread则专门负责从队列取出请求，并创建user thread来处理该请求。当然如果thread cache中刚好有空闲线程的话，receiver thread会把请求交给某个空闲的线程处理。值得注意的是，MySQL自身没有实现线程，它依赖于操作系统的线程。当user thread收到一个请求的时候，它会为之创建一个THD，THD就是一个用来表示一个连接的数据结构。当连接断开的时候，会销毁THD。
+<img style="background-color:white" src="./../../static/mysql-connection-handling.png">
 
-![mysql connection flow](./../../static/mysql-connection-handling.png)
-</div>
 Mysql对短连接（每次重建连接）的支持非常好。能达到每秒80000次的连接。
-Mysql同样支持长连接。与短连接不同的是：重用连接，重用。不过受max_connections系统变量限制。
+Mysql同样支持长连接。与短连接不同的是：重用连接。不过受max_connections系统变量限制。
 Thread Cache用于User Thread池化。这个有助于减少用户线程创建的开销。
 
 2、Authentication

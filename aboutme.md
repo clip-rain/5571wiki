@@ -5,7 +5,7 @@
 机票推荐组（recommend），推荐机票组合（机+机，机+铁，机+汽车）
 #### Skyscanner（天巡）（Ctrip Group）
 DBook（Direct Booking)， 下单组。
-#### Shopee（虾皮）
+#### Shopee（虾皮）（Sea Group）
 People 内部系统
 
 
