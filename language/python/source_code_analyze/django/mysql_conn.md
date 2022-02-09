@@ -1,5 +1,5 @@
 ## 一、Django ORM
-Django自带ORM组件。通过Django的ORM可以很方便地进行数据库操作。Django的ORM包是django.db。接下来将从数据库的连接管理、SQL编译、延迟加载等方面研究一下Django ORM。
+Django自带ORM组件。通过Django的ORM可以很方便地进行数据库操作。Django的ORM包是django.db。文本将从数据库的连接管理、SQL编译、延迟加载等方面研究一下Django ORM。
 
 
 ## 二、数据库连接管理
@@ -20,7 +20,7 @@ Django ORM支持包括mysql，oracle，postgresql，sqlite等多种数据库。�
 ![](../../../../static/django.db.basedatabasewrapper.png)
 
 #### 2.2.2 数据库管理
-django/db/_\_init__.py中定义了connections，如下所示。connections这个全局的变量就是用来管理多个数据。在使用上，大可以将connections看作是一个DatabaseWrapper数组来对待（这是因为ConnectionHandler实现了一些魔法方法）。
+django/db/_\_init__.py中定义了一个全局变量connections，如下所示。connections这个全局的变量是用来管理多个数据库的。在使用上，大可以将connections看作是一个DatabaseWrapper数组来对待（这是因为ConnectionHandler实现了一些魔法方法）。
 ``` python
 connections = ConnectionHandler()
 ```
@@ -67,31 +67,81 @@ class ConnectionHandler(object):
     def all(self):
         return [self[alias] for alias in self]
 ```
-需要理解的是这里的settings.DATABASES就是业务代码中设置的DATABASES，本质是一个存有数据库连接信息的字典。如下所示
+这里的settings.DATABASES就是业务代码中设置的DATABASES。如下所示，它本质是一个存有数据库连接信息的字典。
 ``` python
-{'abc_db': 
-    {
-		# 'ENGINE': 'django.db.backends.mysql',
-		'ENGINE': 'django_mysqlpool.backends.mysqlpool',
-		'NAME': 'abc_db',
-		'HOST': 127.0.0.2,
-		'PORT': 3306,
-		'USER': root,
-		'PASSWORD': 123456,
-		'CONN_MAX_AGE': 3600,
-		'OPTIONS': {'charset': 'utf8mb4'},
-	}
+{
+    'abc_db':  {
+        # 'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django_mysqlpool.backends.mysqlpool',
+        'NAME': 'abc_db',
+        'HOST': 127.0.0.1,
+        'PORT': 3306,
+        'USER': root,
+        'PASSWORD': 123456,
+        'CONN_MAX_AGE': 3600,
+        'OPTIONS': {'charset': 'utf8mb4'},
+    }
 }
 ```
-另外ConnectionHandler.all()是非常重要的一个方法。她会遍历self.\_databases, 这里每个遍历的变量名为alias。之后self[alias]会自动调用魔法方法__getitem__，这个方法会根据alias中的数据库连接信息，生成对应的DatabaseWrapper。特别注意的是下面三句。从alias中获取‘ENGINE’，也就是对应的数据库。由上面贴出来的配置可知，ENGINE配置的是django_mysqlpool.backends.mysqlpool。后面将连接管理的部分会详细讲解这块。
+另外ConnectionHandler.all()是非常重要的一个方法。她会遍历self.\_databases, 这里每个遍历的变量名为alias。之后self[alias]会自动调用魔法方法__getitem__，这个方法会根据alias中的数据库连接信息，生成对应的DatabaseWrapper。特别注意的是下面三句。从alias中获取‘ENGINE’，也就是对应的数据库类路径。由上面贴出来的配置可知，ENGINE配置的是django_mysqlpool.backends.mysqlpool。后面将连接管理的部分会详细讲解这块。
 ``` python
 db = self.databases[alias]
 backend = load_backend(db['ENGINE'])
 conn = backend.DatabaseWrapper(db, alias)
 ```
-综上，可以认为全局变量connections是数据库管理的核心，若把它看作一个list，它里面是可以同时存放不同类型的数据库对象的。例如 [Mysql_DB1, Mysql_DB2, PostgreSQL_DB1, Oracle_DB1]
+综上，得出下面两点重要结论
+- 可以认为全局变量connections是数据库管理的核心，若把它看作一个list，它里面是可以同时存放不同类型的数据库对象。例如,<br>
+ [Mysql_DB1, Mysql_DB2, PostgreSQL_DB1, Oracle_DB1]<br>
+- ConnectionHandler获取database信息是django orm和业务代码的一个交点。光说使用django orm的话，知道了这一点就足够了。
 
 #### 2.2.3 连接池管理
+在2.2.2小节中提供的数据库连接信息中可以看到，DATABASE中的ENGINE配置的是[django_mysqlpool.backends.mysqlpool](https://pypi.org/project/django-mysqlpool/#description)。而实际上django自带的bankends并没有mysqlpool。它是一个由smartfile公司开发的扩展包。这里之所以称之为扩展包，是因为mysqlpool是通过moneky-patch django mysql backend的方式工作的。也就是说，实际的的连接管理还是由django mysql backend来实现的。mysqlpool只是多做了一部分连接池化的工作。<br>
+下面是mysqlpool的部分代码。其实mysqlpool整个包就一个base.py文件，总代码量不足100行，那它是如何实现池化的呢？看下面代码中的MYSQLPOOL定义，它是通过调用pool.manage得到的。也就是说真正的pool定义以及pool的实现都是在[sqlalchemy](https://www.sqlalchemy.org/)之中。<br>
+那sqlalchemy又是什么东西呢？它其实是一个python工具包+ORM组合体。实际上仅仅用sqlalchemy的功能也可以实现数据库的增删改查功能，廖雪峰网站上有[教程](https://www.liaoxuefeng.com/wiki/1016959663602400/1017803857459008)。
+
+```python
+import sqlalchemy.pool as pool
+
+# Define this here so Django can import it.
+DatabaseWrapper = base.DatabaseWrapper
+
+# Wrap the old connect() function so our pool can call it.
+OldDatabase = OldDatabaseProxy(base.Database.connect)
+
+
+def get_pool():
+    "Creates one and only one pool using the configured settings."
+    global MYSQLPOOL
+    if MYSQLPOOL is None:
+        backend = getattr(settings, 'MYSQLPOOL_BACKEND', MYSQLPOOL_BACKEND)
+        backend = getattr(pool, backend)
+        kwargs = getattr(settings, 'MYSQLPOOL_ARGUMENTS', {})
+        kwargs.setdefault('poolclass', backend)
+        # The user can override this, but set it by default for safety.
+        kwargs.setdefault('recycle', MYSQLPOOL_TIMEOUT)
+        MYSQLPOOL = pool.manage(OldDatabase, **kwargs)
+        setattr(MYSQLPOOL, '_pid', os.getpid())
+    if getattr(MYSQLPOOL, '_pid', None) != os.getpid():
+        pool.clear_managers()
+    return MYSQLPOOL
+
+
+def connect(**kwargs):
+    "Obtains a database connection from the connection pool."
+    conv = kwargs.pop('conv', None)
+    if conv:
+        # SQLAlchemy serializes the parameters to keep unique connection parameter
+        # groups in their own pool. We need to store conv in a manner that is
+        # compatible with their serialization.
+        kwargs['conv'] = HashableDict(conv)
+    # Open the connection via the pool.
+    return get_pool().connect(**kwargs)
+
+
+# Monkey-patch the regular mysql backend to use our hacked-up connect() function.
+base.Database.connect = connect
+
+```
 
 #### 2.2.4 连接管理
 
