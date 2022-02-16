@@ -1,0 +1,3 @@
+- common目录保存python相关的通用知识。比如python开发环境的搭建，python包管理工具，python语法基础等
+- code目录保存python代码
+- data目录保存code中或者common中用到的文件。

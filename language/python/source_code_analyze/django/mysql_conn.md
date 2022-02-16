@@ -1,5 +1,7 @@
-## 一、Django ORM框架
-Django自带ORM组件。通过Django的ORM可以很方便地进行数据库操作。Django的ORM包是django.db。文本将从数据库的连接管理、SQL编译、延迟加载等方面研究一下Django ORM。
+# <center>Python - Mysql数据库连接源码分析</center>
+
+## 一、概要
+Django自带ORM组件。通过django的ORM可以很方便地进行数据库操作。Django的ORM包是django.db。文本将从数据库的连接管理、SQL编译、延迟加载等方面研究一下Django ORM。
 
 
 ## 二、数据库连接管理
@@ -12,7 +14,7 @@ Django ORM支持包括mysql，oracle，postgresql，sqlite等多种数据库。�
 - pymysql （连接器，用于管理mysql连接）
 - sqlalchemy （连接池管理）
 
-### 2.2 django.db解读
+### 2.2 依赖包整体解读
 #### 2.2.1 概览
 下图是django.db包的大概结构。可以看到db下有backends和models两个子module。backends中包含了django支持的所有数据库。而models中则包含的是SQL解析相关内容。这里主要讨论的连接相关的内容都集中在backends中。
 ![](../../../../static/django.db.png)
@@ -83,7 +85,7 @@ class ConnectionHandler(object):
     }
 }
 ```
-ConnectionHandler的all方法是非常重要的一个方法。她会遍历self.\_databases, 每个遍历的变量名为alias。之后self[alias]会自动调用魔法方法__getitem__，这个方法会根据alias中的数据库连接信息，生成对应的DatabaseWrapper。特别注意的是下面三句。从alias中获取‘ENGINE’，也就是对应的数据库类路径。由上面贴出来的配置可知，ENGINE配置的是django_mysqlpool.backends.mysqlpool。后面将连接管理的部分会详细讲解这块。
+ConnectionHandler中的_connections是一个local变量，也就是说DatabaseWrapper的实例化是和线程关联起来的。ConnectionHandler的all方法是非常重要的一个方法。她会遍历self.\_databases, 每个遍历的变量名为alias。之后self[alias]会自动调用魔法方法__getitem__，这个方法会根据alias中的数据库连接信息，生成对应的DatabaseWrapper。特别注意的是下面三句。从alias中获取‘ENGINE’，也就是对应的数据库类路径。由上面贴出来的配置可知，ENGINE配置的是django_mysqlpool.backends.mysqlpool。后面将连接管理的部分会详细讲解这块。
 ``` python
 db = self.databases[alias]
 backend = load_backend(db['ENGINE'])
@@ -142,7 +144,7 @@ def connect(**kwargs):
 # Monkey-patch the regular mysql backend to use our hacked-up connect() function.
 base.Database.connect = connect
 ```
-
+下面这段代码在使用Database.connect的时候，实际上就会调用上一段代码中的connect。
 ```python
 import MySQLdb as Database
 
@@ -159,7 +161,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 接着展开讲一下Database.connect(**conn_params)中的Database，根据import我们知道它是从MySQLdb的别名。那MySQLdb又是什么呢？
 
 #### 2.2.4 连接管理
-查阅了一些网站，有些称连接管理的工具包为connector，还有些称之为adapter或[DB API](https://www.python.org/dev/peps/pep-0249/)。这些叫法都是从不同的角度叫出来的名字。connector是从使用的角度看，是一个连接器。adapter是从orm和数据库之间关系的角度看的。DB API是从python规范[PEP249](https://www.python.org/dev/peps/pep-0249/)的角度看的。本文统一称为connector。目前主流的connector有3个：
+查阅了一些网站，有些称连接管理的工具包为connector，还有些称之为adapter或[DB API](https://www.python.org/dev/peps/pep-0249/)。这些叫法都是从不同的角度叫出来的名字。connector是从使用的角度看，是一个连接器。adapter是从orm和数据库之间关系的角度看的。DB API是从python规范[PEP249](https://www.python.org/dev/peps/pep-0249/)的角度看的。本文统一称为connector。目前主流的connector有3个,python开发连接Mysql基本上都绕不开这三个包。
 - [MySQLdb](https://github.com/PyMySQL/mysqlclient)
 - [pymysql](https://github.com/PyMySQL/PyMySQL)
 - [mysql-connector-python](https://github.com/mysql/mysql-connector-python)
@@ -180,14 +182,45 @@ except ImportError as err:
         "Error loading MySQLdb module.\nDid you install mysqlclient?"
     ) from err
 ```
-值得注意的是[mysqlclient](https://github.com/PyMySQL/mysqlclient)和[pymysql](https://github.com/PyMySQL/PyMySQL)在github中同属于一个组织。前面也提到过mysqlclient是基于C语言包装的，而pymysql是一个纯python库，这也导致mysqlclient的性能比pymysql的要好。<br>
+值得注意的是[mysqlclient](https://github.com/PyMySQL/mysqlclient)和[pymysql](https://github.com/PyMySQL/PyMySQL)在github中同属于一个组织。前面也提到过mysqlclient是基于C语言包装的，而pymysql是一个纯python库，这也导致mysqlclient的性能比pymysql的要好。django默认是使用MySQLdb的<br>
 [mysql-connector-python](https://github.com/mysql/mysql-connector-python)则是Mysql官方提供的connector。<br>
-最后谈一下[PEP249](https://www.python.org/dev/peps/pep-0249/)， 这个规范规定了python连接Mysql的接口。pymsql和mysql-connector-python都遵循了PEP249。[深入了解PEP249](./pep249.md)有助于理解pymsql和mysql-connector-python的实现。
+[PEP249](https://www.python.org/dev/peps/pep-0249/) 这个规范规定了python连接Mysql的接口。pymsql和mysql-connector-python都遵循了PEP249。[深入了解PEP249](./pep249.md)有助于理解pymsql和mysql-connector-python的实现。
 
 #### 2.2.5 小结
 django的模式是为backend定义一套接口，backend再在此接口的定义之上用其他的connector来实现数据库的连接。django.db, pymysql, mysqlpool, sqlalchemy，这些包之间就像插座、插头、插头转换器一样连接在了一起，实现了一个完整的功能。本文主要是从全局的角度介绍了各个组件的功能，以及它们之间是如何连接在一起的。而实际的使用过程中，因为情况不同，可能用哪些包，怎么用，都会是另一番天地。<br>
-
-
-
-#### PS:
+![mysqlpool backend](../../../../static/mysqlpool.png)
+PS:
 MySQLdb的历史过于复杂。还存在很多fork的版本，例如[django-mysql-pymysql](https://github.com/clelland/django-mysql-pymysql)也是其一。所以关于MySQLdb的历史可以不要过多关注。
+
+### 三、sqlalchemy的连接池解读
+3.1 连接池的使用
+
+
+3.2 连接池对象
+
+
+
+
+
+### 四、pymysql的数据库连接解读
+4.1 连接的使用
+
+
+
+4.2 连接对象解析
+
+
+### 五、django SQL编译
+
+
+
+
+
+### 六、案例分析
+
+
+
+### 七、综述
+
+
+

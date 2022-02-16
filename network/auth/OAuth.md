@@ -23,6 +23,8 @@ OAuth2是一个授权框架，或者说是一个标准，[规范RFC6749](https:/
 ### 四、Authoriztion Code
 Authorization Code授权类型一般用于Web或者移动APP。
 
+Authorization Request虽然在图示中是给Resource Owner的。但是Client一版可以认为是一个Brower+后台是如何知道要向Resource Owner发什么样的Authorization Request？所以实际实现的时候，这里往往有两步，第一步是client把Authorization Request发给Authorization Server，在Authorzation Server的页面向Resource Owner提出授权申请？
+
 ### 五、PKCE（Proof Key of Code Exchange)
 
 

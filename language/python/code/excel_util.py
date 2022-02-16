@@ -170,9 +170,6 @@ class ExcelModel(metaclass=ExcelMetaclass):
         return self.__data_style_dict__
 
 
-# endregion
-
-
 class RainExcel(object):
     """
     not thread safe.
@@ -265,6 +262,8 @@ class RainExcel(object):
     def _set_data_style(cls, ws, row):
         # todo set the style of data.
         pass
+
+# endregion
 
 
 class TestExcelA(ExcelModel):
