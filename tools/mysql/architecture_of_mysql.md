@@ -10,9 +10,9 @@ MySQL是由瑞典公司MySQL AB用c和c++开发和支持的。主要由Michael�
 
 
 ### 组件
-Mysql中的组件非常多，大概分为2大类。第一类是Application Layer，可以理解比较通用的组件都在这一层。第二层是服务层，这一层包含Mysql的逻辑相关的功能组件。
-一、Application Layer
-1、Connection Handling
+Mysql中的组件非常多，大概分为2大类。第一类是Application Layer，可以理解比较通用的组件都在这一层。第二层是服务层，这一层包含Mysql的逻辑相关的功能组件。<br>
+一、Application Layer<br>
+1、Connection Handling<br>
 当客户端和mysql服务端建立连接的时候，服务端会专门为其建立一个线程来处理连接。连接涉及到的对象有receiver thread, user thread, thread cache, THD. 请求进入Mysql server之后会在请求队列中排队。receiver thread则专门负责从队列取出请求，并创建user thread来处理该请求。当然如果thread cache中刚好有空闲线程的话，receiver thread会把请求交给某个空闲的线程处理。值得注意的是，MySQL自身没有实现线程，它依赖于操作系统的线程。当user thread收到一个请求的时候，它会为之创建一个THD，THD就是一个用来表示一个连接的数据结构。当连接断开的时候，会销毁THD。
 <img style="background-color:white" src="./../../static/mysql-connection-handling.png">
 
@@ -26,13 +26,13 @@ Thread Cache用于User Thread池化。这个有助于减少用户线程创建的
 3、Security
 当认证通过并成功建立连接之后，mysql server需要检查该客户端有权限做哪些操作。可以通过show privileges查看。
 
-二、Server Layer
-server layer包含了mysql所有的逻辑功能。
-1、Mysql service and utilities
-2、SQL interface
-3、SQL Parser
-4、Optimizer
-5、Caches&buffers
+二、Server Layer<br>
+server layer包含了mysql所有的逻辑功能。<br>
+1、Mysql service and utilities<br>
+2、SQL interface<br>
+3、SQL Parser<br>
+4、Optimizer<br>
+5、Caches&buffers<br>
 
 
 ### Reference
