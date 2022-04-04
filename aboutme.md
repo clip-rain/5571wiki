@@ -1,19 +1,21 @@
 ### <span style="color:yellow">前言</span>
 人生是自己一点一点拼凑出来的，只有多去经历，才能将更多有趣的东西拼进人生。
 
-黏在手机这一块屏幕上可能会浪费了大好光阴，偶尔抬头看一下天花板，也许忽然记起已经三月了，得出门踏青了。
+黏在手机这一块屏幕上可能会浪费了大好光阴，偶尔抬头看一下天花板，也许忽然记起已经三月，得出门踏青了。
+
+
 
 
 
 ### <span style="color:yellow">职业经历</span>
-#### 携程（上海）（Ctrip Group）
+#### <span style="color:grey">携程（上海）（Ctrip Group）
 聚合查询组（agg），机票的混合检索。包括机票来源的混合，附加产品的混合。
-#### 携程（深圳）（Ctrip Group）
+#### <span style="color:grey">携程（深圳）（Ctrip Group）
 机票推荐组（recommend），推荐机票组合（机+机，机+铁，机+汽车）
-#### Skyscanner（天巡）（Ctrip Group）
-DBook（Direct Booking)， 下单组。
-#### Shopee（虾皮）（Sea Group）
-People 内部系统
+#### <span style="color:grey">Skyscanner（天巡）（Ctrip Group）
+DBook（Direct Booking)， 下单组(Yellow Squad)。
+#### <span style="color:grey">Shopee（虾皮）（Sea Group）
+People 内部系统 (PFMS)
 
 <br>
 
@@ -26,13 +28,15 @@ People 内部系统
 <br>
 
 ### <span style="color:yellow">后端工程师的基本技能</span>
-- 一门后端编程语言
-- 一个框架（包括web框架，ORM等）
+- 后端编程语言
+- 框架（包括web框架，ORM框架等）
 - 数据结构和算法
 - 数据库和缓存
 - 服务器知识
 - API知识
 - 版本控制
+- 认识问题
+- 分析问题
 - 解决问题的能力
 - 沟通能力
 - 网络知识（TCP/IP，网络安全）
