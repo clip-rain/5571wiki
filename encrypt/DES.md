@@ -17,6 +17,7 @@ DES基于密码学中的两个基本特性：[混淆和扩散](./confusion_diffs
 
 ## KEY
 DES的key长64bit，其中56bit是有效位。前文提到的Feistel Function中用到的key是48bit长的。16轮Feistel Function共计需要16个48bit的key。这16个48bit长的key是通过56bit长的主key计算得到的。计算逻辑如下图所示。
+
 ![](../static/DES-key-schedule.png)
 
 1、图中第一步的PC1(Permuted Choice 1)的作用是去掉64bit中的校验位。得到有效的56bit。<br>
@@ -35,13 +36,16 @@ Feistel Function中有两个输入，一个是32bit的数据，一个是48bit的
 ![](../static/expansion-function.png)
 
 下图则形象的展示了E转换的过程。
+
 ![](../static/DES-expansion.png)
 
 ## P转换
 P转换如下图所示。目的是将32bit的顺序打乱，达到扩散的目的。即Diffusion。
+
 ![](../static/P-permutation.png)
 
 下图形象的展示了P转换的过程。
+
 ![](../static/DES-p-permutation.png)
 
 ## reference
