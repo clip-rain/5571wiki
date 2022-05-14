@@ -5,7 +5,7 @@ MySQL是由瑞典公司MySQL AB用c和c++开发和支持的。主要由Michael�
 下图是从GE[<sup>1</sup>](#ref1)上下载的。该图比较简单，但是可以快速了解MySQL服务端的整体架构。
  ![mysql architecture](../../static/MySQLArchi.png)
 
-下图是从MySQL官网[<sup>2</sup>](#ref2)上下载的。改图中的组件及相应的功能写的比较详细。可以作为深入了解MySQL服务端架构的图解。
+下图是从MySQL官网[<sup>2</sup>](#ref2)上下载的。该图中的组件及相应的功能写的比较详细。可以作为深入了解MySQL服务端架构的图解。
 ![mysql architecture](../../static/mysql-architecture.png)
 
 
