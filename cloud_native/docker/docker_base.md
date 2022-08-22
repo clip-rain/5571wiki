@@ -31,7 +31,7 @@ docker push 可以实现推送，但是要注意的是本地的image名字和远
 
 3、docker build --build-arg key=value .  这样构建的时候，key在Dockerfile中要用ARG key申明一下才能起作用(ENV声明不起作用)。
 
-4、Dockerfile中最后一个CMD中的命令中环境变量需要用ENV，因为这一条命令是镜像打好后进入容器的时候运行的。
+4、Dockerfile中最后一个CMD中的命令中环境变量需要用ENV设置，因为这一条命令是镜像打好后进入容器的时候运行的。
 
 5、Dockerfile中的ARG和ENV的区别？
 ARG是仅仅在Dockerfile中有效的环境变量，它搭配--build-arg来起作用。而且--build-arg后面跟的变量一定要在Dockerfile中用ARG定义过才起作用。

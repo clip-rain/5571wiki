@@ -26,6 +26,7 @@ Authorization Code授权类型一般用于Web或者移动APP。
 Authorization Request虽然在图示中是给Resource Owner的。但是Client一版可以认为是一个Brower+后台是如何知道要向Resource Owner发什么样的Authorization Request？所以实际实现的时候，这里往往有两步，第一步是client把Authorization Request发给Authorization Server，在Authorzation Server的页面向Resource Owner提出授权申请？
 
 ### 五、PKCE（Proof Key of Code Exchange)
+Authoriztion Code在移动设备上，client secret可能会被同机器的其他应用窃取（client secret会存储在ROM中）。所以PKCE采取直接在内存中生成一个临时的secret的方式来替代原来的client secret。其安全性体现在各个应用内存的隔离。PKCE生成的临时secret叫做：codeVerifier
 
 
 
